@@ -41,13 +41,13 @@
 
   <h2>Problem Description</h2>
   <p>
-    Atmospheric effects like rain and fog are everywhere in games, simulations, and visual effects - and they're notoriously hard to get right. The core challenge isn't just making water "look wet"; it's simulating how thousands (or millions) of particles interact with each other, with boundaries, and with light, all while keeping the whole thing running fast enough to be useful.
+    Fluid simulation is a notorious challenge in computer graphics, but one that can be readily accomplished with GPU acceleration. The core challenge isn't just making water "look wet"; it's simulating how thousands (or millions) of particles interact with each other, with boundaries, and with light, all while keeping the whole thing running fast enough to be useful.
   </p>
   <p>
-    The scale of these simulations is what makes them tricky. A single rain scene might involve tens of thousands of particles moving under gravity, wind, and turbulence, all while needing to respond to scene geometry. Grid-based solvers are fast but tend to smear out fine detail. Pure particle methods preserve detail well but get expensive quickly. And on top of the physics, you still need the rendering pipeline - shaders, lighting, transparency - to make everything look convincing rather than just technically correct.
+    The scale of these simulations is what makes them tricky. A single simulation might involve tens of thousands of particles moving under gravity, viscosity, and turbulence, all while needing to respond to scene geometry. Grid-based solvers are fast but tend to smear out fine detail. Pure particle methods preserve detail well but get expensive quickly. And on top of the physics, you still need the rendering pipeline - shaders, lighting, transparency - to make everything look convincing rather than just technically correct.
   </p>
   <p>
-    Our plan is to tackle this with a hybrid PIC/FLIP method, which gets the best of both worlds: the structure of a grid for efficient computation, and particles to preserve the fluid's detail and energy. We'll implement this in C++ with CUDA to push the heavy lifting onto the GPU, and write custom GLSL shaders to handle the visual side - procedural textures, depth-based blending, and light attenuation for atmospheric depth.
+    Our plan is to tackle this with a hybrid PIC/FLIP method, which gets the best of both worlds: the structure of a grid for efficient computation, and particles to preserve the fluid's detail and energy. We'll implement this in C++ with CUDA to push the heavy lifting onto the GPU, and write custom GLSL shaders to handle the visual side - procedural textures, depth-based blending, and light attenuation for fluid depth.
   </p>
 
   <h2>Goals and Deliverables</h2>
@@ -69,7 +69,7 @@
   <p><strong>Evaluation Metrics:</strong></p>
   <ul>
     <li>Volume preservation of the simulated fluid over time (targeting minimal loss)</li>
-    <li>FPS under varying simulation sizes</li>
+    <li>FPS (or seconds per frame) under varying simulation sizes</li>
     <li>Visual smoothness and absence of artifacts</li>
     <li>Stability over long simulation runs</li>
   </ul>
