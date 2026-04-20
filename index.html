@@ -1,136 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stream Processor - Project Proposal</title>
-  <style>
-    body {
-      max-width: 800px;
-      margin: 60px auto;
-      padding: 0 20px;
-      font-family: Georgia, serif;
-      font-size: 16px;
-      line-height: 1.7;
-      color: #222;
+  <head>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+      h1 {
+        text-align: center;
+      }
+
+      .container {
+        margin: 0 auto;
+        padding: 60px 20%;
+      }
+
+      figure {
+        text-align: center;
+      }
+
+      img {
+        display: inline-block;
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        line-height: 1.4;
+        color: #32323a;
+        background-color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 40%;
+        height: 100%;
+        margin: 0;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      @media (max-width: 600px) {
+        body {
+          width: 100%;
+          left: 0;
+          transform: none;
+        }
+      }
+
+      a {
+        text-decoration: none;
+        color: #0057A8;
+      }
+
+      a:hover {
+        color: #8E018E !important;
+        text-decoration: underline;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #666;
+        font-size: 0.95em;
+        margin-top: -12px;
+        margin-bottom: 24px;
+      }
+    </style>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Processor — CS184 Final Project</title>
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Stream Processor</h1>
+        <p class="subtitle">GPU-Accelerated Fluid Simulation — CS 184 Final Project<br>
+          Gracelynn Quek, Ruiyun Wang, Julian Vale, Aditya Bhargava</p>
+      </header>
+      <main>
+        <div class="content">
+          <ul>
+            <li><a href="/proposal/index.html">Project Proposal</a></li>
+            <li><a href="/milestone/index.html">Milestone Report</a></li>
+            <li><a href="/final/index.html">Final Writeup</a></li>
+          </ul>
+        </div>
+      </main>
+    </div>
+  </body>
+  <script>
+    var links = document.body.getElementsByTagName("a")
+    var a = window.location.href.indexOf(".io")
+    var repo_name = window.location.href.substring(a+3)
+    for(var i = 0; i < links.length; i++){
+      var link = links[i]
+      var actual_name = link.href.substring(link.href.indexOf(".io")+4)
+      link.href = repo_name + actual_name
     }
-    h1 { font-size: 2rem; margin-bottom: 0.25rem; }
-    h2 { font-size: 1.2rem; margin-top: 2.5rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25rem; }
-    h3 { font-size: 1rem; margin-top: 1.5rem; margin-bottom: 0.25rem; }
-    p { margin: 0.75rem 0; }
-    ul { margin: 0.5rem 0 0.5rem 1.5rem; }
-    li { margin-bottom: 0.3rem; }
-    a { color: #222; }
-    .subtitle { color: #555; font-size: 0.95rem; margin-bottom: 0.5rem; }
-    .team { margin-top: 0.5rem; color: #444; }
-    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
-    th, td { border: 1px solid #ccc; padding: 0.6rem 0.9rem; text-align: left; vertical-align: top; }
-    th { background: #f5f5f5; font-weight: bold; }
-  </style>
-</head>
-<body>
-
-  <h1>Stream Processor</h1>
-  <p class="subtitle">GPU-Accelerated Fluid Simulation &mdash; CS 184 Project Proposal</p>
-  <p class="team"><strong>Team:</strong> Gracelynn Quek, Ruiyun Wang, Julian Vale, Aditya Bhargava</p>
-
-  <h2>Summary</h2>
-  <p>
-    Stream Processor is a GPU-accelerated fluid simulation system focused on rendering atmospheric effects like rain and fog. We're using a hybrid PIC/FLIP particle-grid approach combined with custom shader-based rendering to produce physically convincing, visually rich results. CUDA parallelism lets us scale to particle counts and scene complexities that would otherwise be too slow to run in real time.
-  </p>
-
-  <h2>Problem Description</h2>
-  <p>
-    Fluid simulation is a notorious challenge in computer graphics, but one that can be readily accomplished with GPU acceleration. The core challenge isn't just making water "look wet"; it's simulating how thousands (or millions) of particles interact with each other, with boundaries, and with light, all while keeping the whole thing running fast enough to be useful.
-  </p>
-  <p>
-    The scale of these simulations is what makes them tricky. A single simulation might involve tens of thousands of particles moving under gravity, viscosity, and turbulence, all while needing to respond to scene geometry. Grid-based solvers are fast but tend to smear out fine detail. Pure particle methods preserve detail well but get expensive quickly. And on top of the physics, you still need the rendering pipeline - shaders, lighting, transparency - to make everything look convincing rather than just technically correct.
-  </p>
-  <p>
-    Our plan is to tackle this with a hybrid PIC/FLIP method, which gets the best of both worlds: the structure of a grid for efficient computation, and particles to preserve the fluid's detail and energy. We'll implement this in C++ with CUDA to push the heavy lifting onto the GPU, and write custom GLSL shaders to handle the visual side - procedural textures, depth-based blending, and light attenuation for fluid depth.
-  </p>
-
-  <h2>Goals and Deliverables</h2>
-
-  <h3>What We Plan to Deliver</h3>
-  <p><strong>Part 1 - Fluid Simulation via PIC/FLIP</strong></p>
-  <p>
-    We'll build a hybrid particle-grid simulation framework from scratch in C++/CUDA. The core loop involves transferring particle velocities to a grid, solving for pressure on the grid, then transferring updated velocities back to the particles - the standard PIC/FLIP pipeline. GPU parallelism handles the particle-to-grid transfers and pressure solve efficiently at scale. The simulation should produce stable, artifact-free fluid motion and basic atmospheric flow behavior over long durations.
-  </p>
-  <p><strong>Part 2 - Texturing and Shader Rendering</strong></p>
-  <ul>
-    <li>Procedural texturing with depth-based blending and transparency for fog/rain appearance</li>
-    <li>Basic light attenuation and scene depth cues for realism</li>
-    <li>Point sprite rendering for particles as a baseline visual</li>
-  </ul>
-  <p>
-    <strong>Deliverables:</strong> A collection of rendered images showing stable PIC/FLIP simulation behavior across different scenarios (rain, fog, fluid flow), plus a short performance report covering FPS at varying particle counts, volume preservation over time, and stability observations.
-  </p>
-  <p><strong>Evaluation Metrics:</strong></p>
-  <ul>
-    <li>Volume preservation of the simulated fluid over time (targeting minimal loss)</li>
-    <li>FPS (or seconds per frame) under varying simulation sizes</li>
-    <li>Visual smoothness and absence of artifacts</li>
-    <li>Stability over long simulation runs</li>
-  </ul>
-
-  <h3>What We Hope to Deliver</h3>
-  <p>
-    If things go well, we want to push the project into interactive territory - a real-time demo where you can tweak parameters like particle count, wind force, and turbulence intensity and watch the simulation respond live.
-  </p>
-  <p>Stretch goals on the rendering side:</p>
-  <ul>
-    <li>Volumetric fog via ray-marching</li>
-    <li>Refraction and environment mapping for water surfaces</li>
-    <li>Motion blur for rain particles</li>
-  </ul>
-
-  <h2>Schedule</h2>
-  <table>
-    <tr>
-      <th>Week</th>
-      <th>Focus</th>
-      <th>Tasks</th>
-    </tr>
-    <tr>
-      <td>Week 1</td>
-      <td>Setup &amp; Core Data Structures</td>
-      <td>Configure repo, build system, and CUDA environment. Implement grid data structure and particle initialization. Begin particle-to-grid (P2G) velocity transfer.</td>
-    </tr>
-    <tr>
-      <td>Week 2</td>
-      <td>Full PIC/FLIP Pipeline</td>
-      <td>Complete FLIP velocity update and grid-to-particle (G2P) transfer. Implement GPU pressure projection solver. Render particles as basic point sprites.</td>
-    </tr>
-    <tr>
-      <td>Week 3</td>
-      <td>Boundaries, Stability &amp; Shaders</td>
-      <td>Add boundary conditions and track volume preservation. Build shader pipeline - depth-based blending, transparency, basic lighting. Run performance profiles (FPS vs. particle count).</td>
-    </tr>
-    <tr>
-      <td>Week 4</td>
-      <td>Polish, Testing &amp; Writeup</td>
-      <td>Finish rendering pass - procedural textures, fog layering. Run long-duration stability tests. Compile rendered images, performance graphs, and written report.</td>
-    </tr>
-  </table>
-
-  <h2>Resources</h2>
-
-  <p><strong>Computing Platform:</strong> Personal machines with NVIDIA GPUs</p>
-  <p><strong>Languages &amp; Tools:</strong> C++, CUDA, GLSL</p>
-
-  <p><strong>References:</strong></p>
-  <ul>
-    <li>Harris, M. - "Fast Fluid Dynamics Simulation on the GPU," <em>GPU Gems</em>, Ch. 38. NVIDIA.<br>
-      <a href="https://developer.nvidia.com/gpugems/gpugems/part-vi-beyond-triangles/chapter-38-fast-fluid-dynamics-simulation-gpu">developer.nvidia.com/gpugems</a></li>
-    <li>Crane, K. et al. - "Real-Time Simulation and Rendering of 3D Fluids," <em>GPU Gems 3</em>, Ch. 30. NVIDIA.<br>
-      <a href="https://developer.nvidia.com/gpugems/gpugems3/part-v-physics-simulation/chapter-30-real-time-simulation-and-rendering-3d-fluids">developer.nvidia.com/gpugems3</a></li>
-    <li>Bridson, R. - <em>Fluid Simulation for Computer Graphics</em>. A K Peters/CRC Press.</li>
-    <li>Thürey, N. &amp; Müller-Fischer, M. - "Grid-based and Particle-based Fluid Simulation," Uni Freiburg.<br>
-      <a href="https://cg.informatik.uni-freiburg.de/intern/seminar/gridFluids_fluid-EulerParticle.pdf">cg.informatik.uni-freiburg.de</a></li>
-    <li>Lague, S. - "Coding Adventure: Simulating Fluids," YouTube.<br>
-      <a href="https://www.youtube.com/watch?v=kOkfC5fLfgE">youtube.com/watch?v=kOkfC5fLfgE</a></li>
-  </ul>
-
-</body>
+  </script>
 </html>
