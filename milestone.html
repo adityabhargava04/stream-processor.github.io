@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stream Processor - Milestone Report</title>
+  <style>
+    body {
+      max-width: 800px;
+      margin: 60px auto;
+      padding: 0 20px;
+      font-family: Georgia, serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #222;
+    }
+    h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+    h2 { font-size: 1.2rem; margin-top: 2.5rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25rem; }
+    h3 { font-size: 1rem; margin-top: 1.5rem; margin-bottom: 0.25rem; }
+    p { margin: 0.75rem 0; }
+    ul { margin: 0.5rem 0 0.5rem 1.5rem; }
+    li { margin-bottom: 0.3rem; }
+    a { color: #222; }
+    .subtitle { color: #555; font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .team { margin-top: 0.5rem; color: #444; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.6rem 0.9rem; text-align: left; vertical-align: top; }
+    th { background: #f5f5f5; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1>Stream Processor</h1>
+  <p class="subtitle">GPU-Accelerated Fluid Simulation &mdash; CS 184 Milestone Report</p>
+  <p class="team"><strong>Team:</strong> Gracelynn Quek, Ruiyun Wang, Julian Vale, Aditya Bhargava</p>
+
+  <h2>Summary</h2>
+  <p>
+    We have completed the core Week 1 deliverables: repository setup, a basic OpenGL/GLAD/GLFW rendering pipeline, the MAC grid data structure, particle system initialization, and a CPU reference implementation of particle-to-grid (P2G) velocity transfer. The foundation is in place for the full PIC/FLIP pipeline to be ported to CUDA.
+  </p>
+
+  <h2>Accomplishments</h2>
+
+  <h3>Infrastructure</h3>
+  <p>
+    The repository, build system, and CUDA environment are configured. We set up an OpenGL rendering pipeline using GLAD and GLFW directly, without additional abstraction libraries.
+  </p>
+
+  <h3>Particle System</h3>
+  <p>
+    We implemented the particle system and integrated it with the basic rendering pipeline, allowing particles to be initialized and displayed as point sprites. Particle data is currently stored as a struct-of-arrays layout in anticipation of GPU memory access patterns, where coalesced reads across threads require the same field for many particles to be contiguous in memory.
+  </p>
+
+  <h3>MAC Grid & P2G Transfer (CPU Reference)</h3>
+  <p>
+    On the CPU side, we implemented the two foundational components of the PIC/FLIP pipeline: the MAC (Marker-And-Cell) grid data structure, which stores velocity components on cell faces and pressure at cell centres, and the particle-to-grid (P2G) velocity transfer, which splats each particle's velocity onto nearby grid nodes using trilinear interpolation weights. These serve as a reference implementation ahead of GPU parallelisation.
+  </p>
+
+  <h3>GPU side</h3>
+  <p>
+    xxx
+  </p>
+
+  <h2>Progress Relative to Plan</h2>
+  <p>
+    We are relatively on schedule. Week 1 deliverables are complete. (week 2 stuff) (what are we doing next for week 3 stuff)
+  </p>
+  <p>
+    One significant design decision: rather than a mixed CPU/GPU pipeline, we are committing to a fully GPU-resident simulation. 
+    The particle update is straightforwardly parallelisable, and keeping all simulation state on the GPU avoids costly CPU-GPU transfers each frame. 
+    The main technical challenge is the P2G transfer, which introduces a race condition when multiple particle threads write to the same grid cell. 
+    We are evaluating two approaches: atomic operations (simpler, but may bottleneck under high particle density) and a sort-based scheme where particles are hashed by cell ID, sorted, 
+    and processed by a subsequent per-cell kernel pass.
+  </p>
+
+  <h2>Updated Work Plan</h2>
+  <table>
+    <tr>
+      <th>Week</th>
+      <th>Focus</th>
+      <th>Tasks</th>
+    </tr>
+    <tr>
+      <td>Week 3</td>
+      <td>Boundaries, Stability &amp; Shaders</td>
+      <td>Add boundary conditions and track volume preservation. Build shader pipeline — depth-based blending, transparency, basic lighting. Profile FPS vs. particle count.</td>
+    </tr>
+    <tr>
+      <td>Week 4</td>
+      <td>Polish, Testing &amp; Writeup</td>
+      <td>Finish rendering pass — procedural textures, fog layering. Run long-duration stability tests. Compile rendered images, performance graphs, and written report.</td>
+    </tr>
+  </table>
+
+</body>
+</html>
