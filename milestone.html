@@ -37,8 +37,10 @@
   <h2>Summary</h2>
   <p>
     We have completed the core Week 1 deliverables: repository setup, a basic OpenGL/GLAD/GLFW rendering pipeline, 
-    the MAC grid data structure, particle system initialization, and a CPU reference implementation of particle-to-grid (P2G) velocity transfer. 
-    (talk more about full PIC/FLIP pipeline to be ported to CUDA.)
+    the MAC grid data structure, particle system initialization, and a CPU reference implementation of particle-to-grid (P2G) velocity transfer.
+  </p>
+  <p>
+    We also completed our core Week 2 deliverables: migrating the particle simulation and particle-to-grid velocity transfer to CUDA kernels, and (talk more about full PIC/FLIP pipeline to be ported to CUDA.)
   </p>
 
   <h2>Accomplishments</h2>
@@ -67,12 +69,20 @@
 
   <h3>GPU side</h3>
   <p>
-    xxx
+    Migrating the particle system to the GPU was relatively straightforward, as we have no collisions to process, meaning everything can be done in parallel with no interaction. We 
+    converted the particle simulation and particle-to-grid velocity transfer to a kernels running one thread per particle. This required some reworking of our datastructures, but allows us to avoid CPU-GPU
+    memory transfers, which will bottleneck our simulation. 
+  </p>
+  <p>
+    One complication arises when we parallelize the particle-to-grid transfer. When we splat the velocities onto the grid nodes we need to increment the total velocity at the node, which introduces a race condition.
+    This was solved via atomic operations, but in the future we want to use a hashing and sorting system to retain the parallelism of the GPU even if many particles need to write to the same node on the grid.
   </p>
 
   <h2>Progress Relative to Plan</h2>
   <p>
-    We are relatively on schedule. Week 1 deliverables are complete. (week 2 stuff) (what are we doing next for week 3 stuff)
+    We are relatively on schedule. Week 1 deliverables are complete. Week 2 deliverables are complete, and the main focus is now optimization and enhancing the rendering.
+    The main optimization we are looking to implement is to keep all the data on the GPU. Currently, we are passing particle position data back to the CPU so that we can fill an OpenGL buffer and draw
+    the particles, but this is obviously quite inefficient as the data already exists on the GPU. We need to integrate our CUDA kernels and rendering pipeline in order for this to work.
   </p>
   <p>
     One significant design decision: rather than a mixed CPU/GPU pipeline, we are committing to a fully GPU-resident simulation. 
