@@ -36,24 +36,33 @@
 
   <h2>Summary</h2>
   <p>
-    We have completed the core Week 1 deliverables: repository setup, a basic OpenGL/GLAD/GLFW rendering pipeline, the MAC grid data structure, particle system initialization, and a CPU reference implementation of particle-to-grid (P2G) velocity transfer. The foundation is in place for the full PIC/FLIP pipeline to be ported to CUDA.
+    We have completed the core Week 1 deliverables: repository setup, a basic OpenGL/GLAD/GLFW rendering pipeline, 
+    the MAC grid data structure, particle system initialization, and a CPU reference implementation of particle-to-grid (P2G) velocity transfer. 
+    (talk more about full PIC/FLIP pipeline to be ported to CUDA.)
   </p>
 
   <h2>Accomplishments</h2>
 
   <h3>Infrastructure</h3>
   <p>
-    The repository, build system, and CUDA environment are configured. We set up an OpenGL rendering pipeline using GLAD and GLFW directly, without additional abstraction libraries.
+    The repository, build system, and CUDA environment are configured. 
+    We set up an OpenGL rendering pipeline using GLAD and GLFW directly, without additional abstraction libraries.
   </p>
 
   <h3>Particle System</h3>
   <p>
-    We implemented the particle system and integrated it with the basic rendering pipeline, allowing particles to be initialized and displayed as point sprites. Particle data is currently stored as a struct-of-arrays layout in anticipation of GPU memory access patterns, where coalesced reads across threads require the same field for many particles to be contiguous in memory.
+    We implemented the particle system and integrated it with the basic rendering pipeline, 
+    allowing particles to be initialized and displayed as point sprites. 
+    Particle data is currently stored as a struct-of-arrays layout in anticipation of GPU memory access patterns, 
+    where coalesced reads across threads require the same field for many particles to be contiguous in memory.
   </p>
 
   <h3>MAC Grid & P2G Transfer (CPU Reference)</h3>
   <p>
-    On the CPU side, we implemented the two foundational components of the PIC/FLIP pipeline: the MAC (Marker-And-Cell) grid data structure, which stores velocity components on cell faces and pressure at cell centres, and the particle-to-grid (P2G) velocity transfer, which splats each particle's velocity onto nearby grid nodes using trilinear interpolation weights. These serve as a reference implementation ahead of GPU parallelisation.
+    On the CPU side, we implemented the two foundational components of the PIC/FLIP pipeline: 
+    the MAC (Marker-And-Cell) grid data structure, which stores velocity components on cell faces and pressure at cell centres, 
+    and the particle-to-grid (P2G) velocity transfer, which splats each particle's velocity onto nearby grid nodes using trilinear interpolation weights. 
+    These serve as a reference implementation ahead of GPU parallelisation.
   </p>
 
   <h3>GPU side</h3>
