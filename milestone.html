@@ -43,6 +43,12 @@
     We also completed our core Week 2 deliverables: migrating the particle simulation and particle-to-grid velocity transfer to CUDA kernels, and (talk more about full PIC/FLIP pipeline to be ported to CUDA.)
   </p>
 
+  <h2>Presentation & Demo</h2>
+  <p>
+    <a href="https://docs.google.com/presentation/d/1IlbSfOLKAJ8QCjdjOPf4DsCMhAC7VDqA83Xfy1pUPVE/edit?usp=sharing">Milestone Presentation Slides</a> &mdash;
+    <a href="https://www.youtube.com/watch?v=ROlicfx28y8">Milestone Presentation Video</a>
+  </p>
+
   <h2>Accomplishments</h2>
 
   <h3>Infrastructure</h3>
@@ -78,19 +84,34 @@
     This was solved via atomic operations, but in the future we want to use a hashing and sorting system to retain the parallelism of the GPU even if many particles need to write to the same node on the grid.
   </p>
 
-  <h2>Progress Relative to Plan</h2>
+  <h3>Pressure Solver</h3>
   <p>
-    We are relatively on schedule. Week 1 deliverables are complete. Week 2 deliverables are complete, and the main focus is now optimization and enhancing the rendering.
-    The main optimization we are looking to implement is to keep all the data on the GPU. Currently, we are passing particle position data back to the CPU so that we can fill an OpenGL buffer and draw
-    the particles, but this is obviously quite inefficient as the data already exists on the GPU. We need to integrate our CUDA kernels and rendering pipeline in order for this to work.
+      With particle velocities splatted onto the grid, we solve for pressure to enforce incompressibility. The divergence of each fluid cell is computed as the net outward flux across its six faces using the staggered MAC velocities. We then run Jacobi iterations to solve the resulting Poisson equation, ping-ponging between two pressure buffers - <code>d_pressure</code> and <code>d_pressure_tmp</code> - swapping them each iteration so the solver always reads from the previous state and writes to the other. Air cell neighbors are treated as contributing pressure = 0 rather than being skipped, which correctly enforces the free-surface boundary condition and avoids inflating pressure at fluid-air interfaces. Once converged, the pressure gradient is subtracted from the velocity field on each face.
   </p>
   <p>
-    One significant design decision: rather than a mixed CPU/GPU pipeline, we are committing to a fully GPU-resident simulation. 
-    The particle update is straightforwardly parallelisable, and keeping all simulation state on the GPU avoids costly CPU-GPU transfers each frame. 
-    The main technical challenge is the P2G transfer, which introduces a race condition when multiple particle threads write to the same grid cell. 
-    We are evaluating two approaches: atomic operations (simpler, but may bottleneck under high particle density) and a sort-based scheme where particles are hashed by cell ID, sorted, 
-    and processed by a subsequent per-cell kernel pass.
+      A key subtlety is that gravity is applied directly to the grid's v-faces on fluid-adjacent cells before the pressure solve, rather than to particles. This means the divergence the solver sees already includes gravitational acceleration, and the pressure response correctly counteracts it. After the solve, a boundary enforcement pass explicitly zeros normal velocity on all six domain walls.
   </p>
+  <p>
+      For G2P, we snapshot the grid velocity field before the pressure solve begins. After the solve, each particle interpolates the velocity delta - post-solve minus pre-solve - from the staggered faces using trilinear weights, with coordinates clamped to the valid range to prevent extrapolation near walls. This delta is blended 95% FLIP / 5% PIC: FLIP adds the delta to the particle's existing velocity, preserving momentum and avoiding numerical dissipation, while the small PIC component damps instability by occasionally grounding the particle velocity to the absolute grid value.
+  </p>
+
+    <h2>Progress Relative to Plan</h2>
+    <p>
+      We are relatively on schedule. Week 1 deliverables are complete. Week 2 deliverables are complete, and the main focus is now optimization and enhancing the rendering.
+      The main optimization we are looking to implement is to keep all the data on the GPU. Currently, we are passing particle position data back to the CPU so that we can fill an OpenGL buffer and draw
+      the particles, but this is obviously quite inefficient as the data already exists on the GPU. We need to integrate our CUDA kernels and rendering pipeline in order for this to work.
+    </p>
+    <p>
+      One significant design decision: rather than a mixed CPU/GPU pipeline, we are committing to a fully GPU-resident simulation. 
+      The particle update is straightforwardly parallelisable, and keeping all simulation state on the GPU avoids costly CPU-GPU transfers each frame. 
+      The main technical challenge is the P2G transfer, which introduces a race condition when multiple particle threads write to the same grid cell. 
+      We are evaluating two approaches: atomic operations (simpler, but may bottleneck under high particle density) and a sort-based scheme where particles are hashed by cell ID, sorted, 
+      and processed by a subsequent per-cell kernel pass.
+    </p>
+
+    <video width="100%" controls>
+    <source src="milestone-sim-vid.mp4" type="video/mp4">
+    </video>
 
   <h2>Updated Work Plan</h2>
   <table>
@@ -102,12 +123,12 @@
     <tr>
       <td>Week 3</td>
       <td>Boundaries, Stability &amp; Shaders</td>
-      <td>Add boundary conditions and track volume preservation. Build shader pipeline — depth-based blending, transparency, basic lighting. Profile FPS vs. particle count.</td>
+      <td>Add boundary conditions and track volume preservation. Build shader pipeline - depth-based blending, transparency, basic lighting. Profile FPS vs. particle count.</td>
     </tr>
     <tr>
       <td>Week 4</td>
       <td>Polish, Testing &amp; Writeup</td>
-      <td>Finish rendering pass — procedural textures, fog layering. Run long-duration stability tests. Compile rendered images, performance graphs, and written report.</td>
+      <td>Finish rendering pass - procedural textures, fog layering. Run long-duration stability tests. Compile rendered images, performance graphs, and written report.</td>
     </tr>
   </table>
 
