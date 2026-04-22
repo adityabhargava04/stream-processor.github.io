@@ -6,6 +6,7 @@
 !milestone.html
 !final.html
 
+!*.mp4
 !.DS_store
 
 !.gitignore
