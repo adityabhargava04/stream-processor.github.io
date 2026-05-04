@@ -36,12 +36,17 @@
 
   <h2>Abstract</h2>
   <p>
-    We have completed the core Week 1 deliverables: repository setup, a basic OpenGL/GLAD/GLFW rendering pipeline, 
-    the MAC grid data structure, particle system initialization, and a CPU reference implementation of particle-to-grid (P2G) velocity transfer.
+    Our project successfully implemented 3D-fluid simulation for Newtonian fluids using a hybrid particle-grid method.
+    We managed to successfully implement CUDA acceleration to take advantage of the GPU's faster parallel processing capabilities. 
   </p>
   <p>
-    We also completed our core Week 2 deliverables: migrating the particle simulation and particle-to-grid velocity transfer to CUDA kernels, and (talk more about full PIC/FLIP pipeline to be ported to CUDA.)
+    As seen in our video below, we managed to successfully simulate water under a gravitational field and interacting with other physical objects. 
+    In terms of performance, we managed to successfully simulate and render [number of] particles without any visible lag. 
   </p>
+  <p>
+    In terms of future works, we could explore other atmospheric effects, such as fog and smoke, and potentially integration into a more dynamic 3D world.
+  </p>
+  
 
   <h2>Technical Approach</h2>
 
@@ -98,26 +103,6 @@
   <h2>References</h2>
 
   <h2>Contributions</h2>
-
-  
-
-    <h2>Progress Relative to Plan</h2>
-    <p>
-      We are relatively on schedule. Week 1 deliverables are complete. Week 2 deliverables are complete, and the main focus is now optimization and enhancing the rendering.
-      The main optimization we are looking to implement is to keep all the data on the GPU. Currently, we are passing particle position data back to the CPU so that we can fill an OpenGL buffer and draw
-      the particles, but this is obviously quite inefficient as the data already exists on the GPU. We need to integrate our CUDA kernels and rendering pipeline in order for this to work.
-    </p>
-    <p>
-      One significant design decision: rather than a mixed CPU/GPU pipeline, we are committing to a fully GPU-resident simulation. 
-      The particle update is straightforwardly parallelisable, and keeping all simulation state on the GPU avoids costly CPU-GPU transfers each frame. 
-      The main technical challenge is the P2G transfer, which introduces a race condition when multiple particle threads write to the same grid cell. 
-      We are evaluating two approaches: atomic operations (simpler, but may bottleneck under high particle density) and a sort-based scheme where particles are hashed by cell ID, sorted, 
-      and processed by a subsequent per-cell kernel pass.
-    </p>
-
-    <video width="100%" controls>
-    <source src="milestone-sim-vid.mp4" type="video/mp4">
-    </video>
 
 </body>
 </html>
