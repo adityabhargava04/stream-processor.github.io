@@ -60,9 +60,38 @@
     a { color: #222; }
     .subtitle { color: #555; font-size: 0.95rem; margin-bottom: 0.5rem; }
     .team { margin-top: 0.5rem; color: #444; }
+    .hero-image { margin: 1.5rem 0 2rem; text-align: center; }
+    .hero-image img { width: 100%; max-width: 800px; height: auto; display: block; border-radius: 4px; }
+    .hero-image figcaption { margin-top: 0.35rem; font-size: 0.9rem; color: #555; }
     table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
     th, td { border: 1px solid #ccc; padding: 0.6rem 0.9rem; text-align: left; vertical-align: top; }
     th { background: #f5f5f5; font-weight: bold; }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .video-grid iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+    }
+    .video-grid figure {
+      margin: 0;
+    }
+    .video-grid figcaption {
+      margin-top: 0.35rem;
+      font-size: 0.9rem;
+      color: #555;
+      text-align: center;
+    }
+    @media (max-width: 700px) {
+      .video-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -71,15 +100,20 @@
     <p class="subtitle">GPU-Accelerated Fluid Simulation &mdash; CS 184 Milestone Report</p>
     <p class="team"><strong>Team:</strong> Gracelynn Quek, Ruiyun Wang, Julian Vale, Aditya Bhargava</p>
 
-    <h2>Abstract</h2>
-    <p>
-        Our project successfully implemented 3D-fluid simulation for Newtonian fluids using a hybrid particle-grid method.
-        We managed to successfully implement CUDA acceleration to take advantage of the GPU's faster parallel processing capabilities.
-        As seen in our video below, we managed to successfully simulate fluids in real-time under a gravitational field with interactions with scene boundaries and other objects.
-        In terms of performance, we managed to successfully simulate and render [number of] particles without any visible lag.
-        In terms of future works, we could explore other atmospheric effects, such as fog and smoke, and potentially integration into a more dynamic 3D world.
-    </p>
+  <figure class="hero-image">
+    <img src="Fluid Sim.png" alt="Fluid simulation preview" />
+    <figcaption>Fluid Sim.png</figcaption>
+  </figure>
 
+  <h2>Abstract</h2>
+  <p>
+    Our project successfully implemented 3D-fluid simulation for Newtonian fluids using a hybrid particle-grid method.
+    We managed to successfully implement CUDA acceleration to take advantage of the GPU's faster parallel processing capabilities. 
+    As seen in our video below, we managed to successfully simulate fluids in real-time under a gravitational field with interactions with scene boundaries and other objects.
+    In terms of performance, we managed to successfully simulate and render [number of] particles without any visible lag. 
+    In terms of future works, we could explore other atmospheric effects, such as fog and smoke, and potentially integration into a more dynamic 3D world.
+  </p>
+  
 
     <h2>Technical Approach</h2>
 
@@ -180,20 +214,60 @@
 
     <h2>Lessons Learned</h2>
     <ul>
-        <li>Staggered MAC grids avoid pressure checkerboard instability but require careful index arithmetic for staggered face arrays — off-by-one errors in face indexing are silent and hard to debug.</li>
         <li>The 95/5 FLIP/PIC blend is a well-established heuristic that balances energy preservation against noise accumulation — pure FLIP accumulates visible noise over long runs.</li>
-        <li>Separating CPU reference implementations from GPU kernels early made debugging significantly easier, as correctness could be verified on the CPU before parallelising.</li>
+        <li>Separating CPU reference implementations from GPU kernels early made debugging significantly easier, as correctness could be verified on the CPU before parallelising, and teammates without GPU access can assist.</li>
         <li>Atomic operations solve race conditions in parallel scatter operations but serialize memory access — for production fluid simulations, particle sorting by grid cell is a better long-term approach.</li>
     </ul>
 
-    <h2>Results</h2>
-    <p>
-        <a href="https://docs.google.com/presentation/d/1IlbSfOLKAJ8QCjdjOPf4DsCMhAC7VDqA83Xfy1pUPVE/edit?usp=sharing">Milestone Presentation Slides</a> &mdash;
-        <a href="https://www.youtube.com/watch?v=ROlicfx28y8">Milestone Presentation Video</a>
-    </p>
+  <h2>Results</h2>
+  <p>
+    <a href="https://docs.google.com/presentation/d/1IlbSfOLKAJ8QCjdjOPf4DsCMhAC7VDqA83Xfy1pUPVE/edit?usp=sharing">Milestone Presentation Slides</a>
+  </p>
 
-    <h2>References</h2>
-    <ul>
+  <div class="video-grid">
+    <figure>
+      <iframe
+        src="https://www.youtube.com/embed/SpwOUDZZ-Ss"
+        title="Preset 1: Fluid filling up a tank"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+      </iframe>
+      <figcaption>Preset 1: Fluid filling up a tank</figcaption>
+    </figure>
+
+    <figure>
+      <iframe
+        src="https://www.youtube.com/embed/kBTZCtftDAI"
+        title="Preset 2: Blob of liquid falling on floor"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+      </iframe>
+      <figcaption>Preset 2: Blob of liquid falling on floor</figcaption>
+    </figure>
+
+    <figure>
+      <iframe
+        src="https://www.youtube.com/embed/CGsH_VnNkxA"
+        title="Preset 3: Tap pouring water into reservoir"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+      </iframe>
+      <figcaption>Preset 3: Tap pouring water into reservoir</figcaption>
+    </figure>
+
+    <figure>
+      <iframe
+        src="https://www.youtube.com/embed/XsPSAoYFHEo"
+        title="Preset 4: Tap pouring water over a sphere into a reservoir"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+      </iframe>
+      <figcaption>Preset 4: Tap pouring water over a sphere into a reservoir</figcaption>
+    </figure>
+  </div>
+
+  <h2>References</h2>
+  <ul>
         <li>Harris, M. — "Fast Fluid Dynamics Simulation on the GPU," GPU Gems, Ch. 38. NVIDIA. <a href="https://developer.nvidia.com/gpugems" target="_blank">developer.nvidia.com/gpugems</a></li>
         <li>Crane, K. et al. — "Real-Time Simulation and Rendering of 3D Fluids," GPU Gems 3, Ch. 30. NVIDIA. <a href="https://developer.nvidia.com/gpugems3" target="_blank">developer.nvidia.com/gpugems3</a></li>
         <li>Bridson, R. — <em>Fluid Simulation for Computer Graphics</em>. A K Peters/CRC Press.</li>
@@ -204,8 +278,8 @@
     <h2>Contributions</h2>
     <ul>
         <li><strong>Gracelynn Quek:</strong> Repository Initialisation on CPU-side (Simulation Infrastructure, Particle System, Rendering Pipeline, CMAKE, Basic Shaders) & Final Shaders</li>
-        <li><strong>Ruiyun Wang:</strong> CPU-side simulation infrastructure, rendering pipeline, and environment rendering. Implemented the MAC grid data structure with staggered velocity layout, particle system initialisation, and the CPU particle-to-grid (P2G) velocity transfer with trilinear interpolation weights as a reference implementation. Implemented the environment dome with equirectangular texture mapping, HDR tone mapping support, and a dedicated GLSL shader pipeline. Set up the cross-platform CMake build system with a <code>CPU_ONLY</code> configuration enabling development on machines without NVIDIA GPUs.</li>
-        <li><strong>Julian Vale:</strong> <span class="placeholder">[add contribution]</span></li>
+        <li><strong>Ruiyun Wang:</strong> Implemented the MAC grid data structure, particle system initialisation, and the CPU particle-to-grid (P2G) velocity transfer as a reference implementation. Implemented the environment dome and a dedicated GLSL shader pipeline. Set up the cross-platform CMake build system with a <code>CPU_ONLY</code> configuration enabling development on machines without NVIDIA GPUs.</li>
+        <li><strong>Julian Vale:</strong> Migrated CPU particle to grid transfer to CUDA kernel. Implemented density texture compute shader, raymarched fluid shader. Added benchmarking and logging capabilities, optimized GPU memory transfer</li>
         <li><strong>Aditya Bhargava:</strong> <span class="placeholder">[add contribution]</span></li>
     </ul>
 
