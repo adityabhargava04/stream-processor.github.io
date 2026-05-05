@@ -10,9 +10,46 @@
       margin: 60px auto;
       padding: 0 20px;
       font-family: Georgia, serif;
-      font-size: 16px;
+      font-size: 14px;
       line-height: 1.7;
       color: #222;
+    }
+    .featured-image {
+        display: block;
+        margin: 30px auto; /* Centers the whole figure block */
+        max-width: 80%; /* Or whatever width you want the image to be */
+        text-align: center; /* Centers the image AND the caption text */
+    }
+
+        .featured-image img {
+            width: 100%; /* Makes image fill the figure container */
+            height: auto;
+            display: block; /* Removes tiny gap at bottom of image */
+            margin-bottom: 10px; /* Space between image and caption */
+        }
+
+    figcaption {
+        font-style: italic;
+        font-size: 0.9rem;
+        color: #555;
+    }
+    .image-row {
+        display: flex; /* Horizontal layout */
+        gap: 20px; /* Space between the two figures */
+        margin: 30px auto; /* Vertical space between paragraphs */
+        max-width: 1000px; /* Optional: limits how wide the row gets */
+    }
+
+    .image-row figure {
+        flex: 1; /* Makes both figures equal width */
+        margin: 0; /* Resets default browser margins */
+        text-align: center;
+    }
+
+    .image-row img {
+        width: 100%; /* Fills its half of the row */
+        height: auto;
+        display: block;
     }
     h1 { font-size: 2rem; margin-bottom: 0.25rem; }
     h2 { font-size: 1.2rem; margin-top: 2.5rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25rem; }
@@ -30,75 +67,112 @@
 </head>
 <body>
 
-  <h1>Stream Processor</h1>
-  <p class="subtitle">GPU-Accelerated Fluid Simulation &mdash; CS 184 Milestone Report</p>
-  <p class="team"><strong>Team:</strong> Gracelynn Quek, Ruiyun Wang, Julian Vale, Aditya Bhargava</p>
+    <h1>Stream Processor</h1>
+    <p class="subtitle">GPU-Accelerated Fluid Simulation &mdash; CS 184 Milestone Report</p>
+    <p class="team"><strong>Team:</strong> Gracelynn Quek, Ruiyun Wang, Julian Vale, Aditya Bhargava</p>
 
-  <h2>Abstract</h2>
-  <p>
-    Our project successfully implemented 3D-fluid simulation for Newtonian fluids using a hybrid particle-grid method.
-    We managed to successfully implement CUDA acceleration to take advantage of the GPU's faster parallel processing capabilities. 
-    As seen in our video below, we managed to successfully simulate fluids in real-time under a gravitational field with interactions with scene boundaries and other objects.
-    In terms of performance, we managed to successfully simulate and render [number of] particles without any visible lag. 
-    In terms of future works, we could explore other atmospheric effects, such as fog and smoke, and potentially integration into a more dynamic 3D world.
-  </p>
-  
+    <h2>Abstract</h2>
+    <p>
+        Our project successfully implemented 3D-fluid simulation for Newtonian fluids using a hybrid particle-grid method.
+        We managed to successfully implement CUDA acceleration to take advantage of the GPU's faster parallel processing capabilities.
+        As seen in our video below, we managed to successfully simulate fluids in real-time under a gravitational field with interactions with scene boundaries and other objects.
+        In terms of performance, we managed to successfully simulate and render [number of] particles without any visible lag.
+        In terms of future works, we could explore other atmospheric effects, such as fog and smoke, and potentially integration into a more dynamic 3D world.
+    </p>
 
-  <h2>Technical Approach</h2>
 
-  <h3>Infrastructure</h3>
-  <p>
-    The repository and build system are configured using CMake with vcpkg for dependency management. 
-    We set up an OpenGL rendering pipeline directly using GLAD and GLFW without additional abstraction libraries. 
-  </p>
+    <h2>Technical Approach</h2>
 
-  <h3>Particle System</h3>
-  <p>
-    We implemented the particle system and integrated it with the basic rendering pipeline, 
-    allowing particles to be initialized and displayed as point sprites. 
-    Particle data is currently stored as a struct-of-arrays layout in anticipation of GPU memory access patterns, 
-    where coalesced reads across threads require the same field for many particles to be contiguous in memory.
-  </p>
+    <h3>Infrastructure</h3>
+    <p>
+        The repository and build system are configured using CMake with vcpkg for dependency management.
+        We set up an OpenGL rendering pipeline directly using GLAD and GLFW without additional abstraction libraries.
+    </p>
 
-  <h3>MAC Grid & P2G Transfer (CPU Reference)</h3>
-  <p>
-    On the CPU side, we implemented the two foundational components of the PIC/FLIP pipeline: 
-    the MAC (Marker-And-Cell) grid data structure, which stores velocity components on cell faces and pressure at cell centres, 
-    and the particle-to-grid (P2G) velocity transfer, which splats each particle's velocity onto nearby grid nodes using trilinear interpolation weights. 
-    These serve as a reference implementation ahead of GPU parallelisation.
-  </p>
+    <h3>Particle System</h3>
+    <p>
+        We implemented the particle system and integrated it with the basic rendering pipeline,
+        allowing particles to be initialized and displayed as point sprites.
+        Particle data is currently stored as a struct-of-arrays layout in anticipation of GPU memory access patterns,
+        where coalesced reads across threads require the same field for many particles to be contiguous in memory.
+    </p>
 
-  <h3>GPU side</h3>
-  <p>
-    Migrating the particle system to the GPU was relatively straightforward, as we have no collisions to process, meaning everything can be done in parallel with no interaction. We 
-    converted the particle simulation and particle-to-grid velocity transfer to a kernels running one thread per particle. This required some reworking of our datastructures, but allows us to avoid CPU-GPU
-    memory transfers, which will bottleneck our simulation. 
-  </p>
-  <p>
-    One complication arises when we parallelize the particle-to-grid transfer. When we splat the velocities onto the grid nodes we need to increment the total velocity at the node, which introduces a race condition.
-    This was solved via atomic operations, but in the future we want to use a hashing and sorting system to retain the parallelism of the GPU even if many particles need to write to the same node on the grid.
-  </p>
+    <h3>MAC Grid & P2G Transfer (CPU Reference)</h3>
+    <p>
+        On the CPU side, we implemented the two foundational components of the PIC/FLIP pipeline:
+        the MAC (Marker-And-Cell) grid data structure, which stores velocity components on cell faces and pressure at cell centres,
+        and the particle-to-grid (P2G) velocity transfer, which splats each particle's velocity onto nearby grid nodes using trilinear interpolation weights.
+        These serve as a reference implementation ahead of GPU parallelisation.
+    </p>
 
-  <h3>Pressure Solver</h3>
-  <p>
-      With particle velocities splatted onto the grid, we solve for pressure to enforce incompressibility. The divergence of each fluid cell is computed as the net outward flux across its six faces using the staggered MAC velocities. We then run Jacobi iterations to solve the resulting Poisson equation, ping-ponging between two pressure buffers - <code>d_pressure</code> and <code>d_pressure_tmp</code> - swapping them each iteration so the solver always reads from the previous state and writes to the other. Air cell neighbors are treated as contributing pressure = 0 rather than being skipped, which correctly enforces the free-surface boundary condition and avoids inflating pressure at fluid-air interfaces. Once converged, the pressure gradient is subtracted from the velocity field on each face.
-  </p>
-  <p>
-      A key subtlety is that gravity is applied directly to the grid's v-faces on fluid-adjacent cells before the pressure solve, rather than to particles. This means the divergence the solver sees already includes gravitational acceleration, and the pressure response correctly counteracts it. After the solve, a boundary enforcement pass explicitly zeros normal velocity on all six domain walls.
-  </p>
-  <p>
-      For G2P, we snapshot the grid velocity field before the pressure solve begins. After the solve, each particle interpolates the velocity delta - post-solve minus pre-solve - from the staggered faces using trilinear weights, with coordinates clamped to the valid range to prevent extrapolation near walls. This delta is blended 95% FLIP / 5% PIC: FLIP adds the delta to the particle's existing velocity, preserving momentum and avoiding numerical dissipation, while the small PIC component damps instability by occasionally grounding the particle velocity to the absolute grid value.
-  </p>
+    <h3>GPU side</h3>
+    <p>
+        Migrating the particle system to the GPU was relatively straightforward, as we have no collisions to process, meaning everything can be done in parallel with no interaction. We
+        converted the particle simulation and particle-to-grid velocity transfer to a kernels running one thread per particle. This required some reworking of our datastructures, but allows us to avoid CPU-GPU
+        memory transfers, which will bottleneck our simulation.
+    </p>
+    <p>
+        One complication arises when we parallelize the particle-to-grid transfer. When we splat the velocities onto the grid nodes we need to increment the total velocity at the node, which introduces a race condition.
+        This was solved via atomic operations, but using a hashing and sorting system to retain the parallelism of the GPU even if many particles need to write to the same node on the grid would be the ideal solution.
+    </p>
 
-  <h3>Rendering Pipeline and Shaders</h3>
-  <p>The rendering pipeline is built on OpenGL 3.3 core profile using GLFW for windowing and GLAD for function loading. Particle positions are uploaded to the GPU each frame as a vertex buffer and rendered as point sprites using <code>GL_POINTS</code>. The vertex shader performs a simple perspective projection by dividing the particle's XY position by its depth, with point size scaled inversely with depth so closer particles appear larger. Particles behind the camera are clipped by mapping them off-screen.</p>
-  <p>The fragment shader renders each point sprite as a soft circular disc rather than a square. It uses <code>gl_PointCoord</code> to compute the distance from the point centre, discarding fragments outside the unit circle and applying an exponential falloff for a soft edge. Depth-based fog is applied using exponential attenuation — particles further from the camera blend towards a configurable fog colour — giving the simulation atmospheric depth. Both particle colour and fog density are exposed as uniforms controllable from the application.</p>
+    <h3>Pressure Solver</h3>
+    <p>
+        With particle velocities splatted onto the grid, we solve for pressure to enforce incompressibility. The divergence of each fluid cell is computed as the net outward flux across its six faces using the staggered MAC velocities. We then run Jacobi iterations to solve the resulting Poisson equation, ping-ponging between two pressure buffers - <code>d_pressure</code> and <code>d_pressure_tmp</code> - swapping them each iteration so the solver always reads from the previous state and writes to the other. Air cell neighbors are treated as contributing pressure = 0 rather than being skipped, which correctly enforces the free-surface boundary condition and avoids inflating pressure at fluid-air interfaces. Once converged, the pressure gradient is subtracted from the velocity field on each face.
+    </p>
+    <p>
+        A key subtlety is that gravity is applied directly to the grid's v-faces on fluid-adjacent cells before the pressure solve, rather than to particles. This means the divergence the solver sees already includes gravitational acceleration, and the pressure response correctly counteracts it. After the solve, a boundary enforcement pass explicitly zeros normal velocity on all six domain walls.
+    </p>
+    <p>
+        For G2P, we snapshot the grid velocity field before the pressure solve begins. After the solve, each particle interpolates the velocity delta - post-solve minus pre-solve - from the staggered faces using trilinear weights, with coordinates clamped to the valid range to prevent extrapolation near walls. This delta is blended 95% FLIP / 5% PIC: FLIP adds the delta to the particle's existing velocity, preserving momentum and avoiding numerical dissipation, while the small PIC component damps instability by occasionally grounding the particle velocity to the absolute grid value.
+    </p>
 
-  <h3>Environment Dome</h3>
-  <p>To provide environmental context for the simulation, we implemented an environment dome — a large sphere (radius 50 units) surrounding the camera and all particles, with an equirectangular texture mapped to its interior surface. The dome is built procedurally at initialisation by tessellating a UV sphere into a triangle mesh with equirectangular UV coordinates. It is rendered before particles each frame with depth writes disabled (<code>glDepthMask(GL_FALSE)</code>) so it always appears in the background regardless of particle depth.</p>
-  <p>The dome uses a dedicated GLSL shader with a view-projection matrix uniform for correct perspective. The fragment shader samples the equirectangular texture and applies a brightness uniform for exposure control. Texture loading is handled via <code>stb_image</code>, which supports both standard JPG/PNG images and HDR equirectangular maps — for HDR inputs, the fragment shader applies Reinhard tone mapping and gamma correction (γ = 2.2) to correctly display high dynamic range values on a standard monitor.</p>
+    <h3>Rendering Pipeline and Shaders</h3>
+    <p>The rendering pipeline is built on OpenGL 3.3 core profile using GLFW for windowing and GLAD for function loading. Particle positions are uploaded to the GPU each frame as a vertex buffer and rendered as point sprites using <code>GL_POINTS</code>. The vertex shader performs a simple perspective projection by dividing the particle's XY position by its depth, with point size scaled inversely with depth so closer particles appear larger. Particles behind the camera are clipped by mapping them off-screen.</p>
+    <p>The fragment shader renders each point sprite as a soft circular disc rather than a square. It uses <code>gl_PointCoord</code> to compute the distance from the point centre, discarding fragments outside the unit circle and applying an exponential falloff for a soft edge. Depth-based fog is applied using exponential attenuation — particles further from the camera blend towards a configurable fog colour — giving the simulation atmospheric depth. Both particle colour and fog density are exposed as uniforms controllable from the application.</p>
 
-  <h2>Problems Encountered</h2>
+    <figure class="featured-image">
+        <img src="particle_shader.png" alt="particle shader">
+        <figcaption>Particle shader.</figcaption>
+    </figure>
+
+    <p>
+        The fluid is rendered using a raymarching approach with reflection and refraction. This volumetric approach, largely inspired by Sebastian Lague, enables us to have light fall off and scattering within the fluid,
+        while also having a clearly defined surface.
+    </p>
+    <p>
+        In order to sample the density of the fluid for the raymarching, we wrote a compute shader that splats each particles' contribution to the density to a voxel grid, stored in a 3D texture. In the fragment shader,
+        we trace a ray for each pixel, comparing the density of the fluid at each step of the ray to a set threshold. If the density is greater than the threshold, we compute the surface normal by comparing the difference in
+        density in each direction.
+    </p>
+
+    <figure class="featured-image">
+        <img src="normal_shading.png" alt="normal shader">
+        <figcaption>Fluid surface normal shading.</figcaption>
+    </figure>
+
+    <p>
+        The surface normal is then used to calculate the contributions of reflection and refraction for this ray. We march the rays corresponding to each of these contributions, scaling the refraction
+        by the transmittance, until they intersect either the fluid surface again, or the sphere collider in scene 4.
+    </p>
+
+    <div class="image-row">
+        <figure>
+            <img src="high_density.png" alt="high density fluid">
+            <figcaption>Raymarched fluid shader with high density</figcaption>
+        </figure>
+
+        <figure>
+            <img src="low_density.png" alt="low density fluid">
+            <figcaption>Raymarched fluid shader with low density</figcaption>
+        </figure>
+    </div>
+
+    <h3>Environment Dome</h3>
+    <p>To provide environmental context for the simulation, we implemented an environment dome — a large sphere (radius 50 units) surrounding the camera and all particles, with an equirectangular texture mapped to its interior surface. The dome is built procedurally at initialisation by tessellating a UV sphere into a triangle mesh with equirectangular UV coordinates. It is rendered before particles each frame with depth writes disabled (<code>glDepthMask(GL_FALSE)</code>) so it always appears in the background regardless of particle depth.</p>
+    <p>The dome uses a dedicated GLSL shader with a view-projection matrix uniform for correct perspective. The fragment shader samples the equirectangular texture and applies a brightness uniform for exposure control. Texture loading is handled via <code>stb_image</code>, which supports both standard JPG/PNG images and HDR equirectangular maps — for HDR inputs, the fragment shader applies Reinhard tone mapping and gamma correction (γ = 2.2) to correctly display high dynamic range values on a standard monitor.</p>
+
+    <h2>Problems Encountered</h2>
     <ul>
         <li><strong>Race conditions in parallel P2G:</strong> When parallelising the particle-to-grid transfer on the GPU, multiple threads writing to the same grid node introduced race conditions. These were resolved using CUDA atomic operations, though this comes at a performance cost we plan to address with a sorting-based approach in future work.</li>
         <li><strong>Cross-platform build without CUDA:</strong> Team members without NVIDIA GPUs could not build the project once Thrust and CUDA were introduced. We resolved this by introducing a <code>CPU_ONLY</code> CMake flag and <code>#ifdef USE_CUDA</code> guards throughout the codebase, allowing a fully functional CPU build that includes the rendering pipeline and CPU reference simulation.</li>
@@ -112,14 +186,14 @@
         <li>Atomic operations solve race conditions in parallel scatter operations but serialize memory access — for production fluid simulations, particle sorting by grid cell is a better long-term approach.</li>
     </ul>
 
-  <h2>Results</h2>
-  <p>
-    <a href="https://docs.google.com/presentation/d/1IlbSfOLKAJ8QCjdjOPf4DsCMhAC7VDqA83Xfy1pUPVE/edit?usp=sharing">Milestone Presentation Slides</a> &mdash;
-    <a href="https://www.youtube.com/watch?v=ROlicfx28y8">Milestone Presentation Video</a>
-  </p>
+    <h2>Results</h2>
+    <p>
+        <a href="https://docs.google.com/presentation/d/1IlbSfOLKAJ8QCjdjOPf4DsCMhAC7VDqA83Xfy1pUPVE/edit?usp=sharing">Milestone Presentation Slides</a> &mdash;
+        <a href="https://www.youtube.com/watch?v=ROlicfx28y8">Milestone Presentation Video</a>
+    </p>
 
-  <h2>References</h2>
-  <ul>
+    <h2>References</h2>
+    <ul>
         <li>Harris, M. — "Fast Fluid Dynamics Simulation on the GPU," GPU Gems, Ch. 38. NVIDIA. <a href="https://developer.nvidia.com/gpugems" target="_blank">developer.nvidia.com/gpugems</a></li>
         <li>Crane, K. et al. — "Real-Time Simulation and Rendering of 3D Fluids," GPU Gems 3, Ch. 30. NVIDIA. <a href="https://developer.nvidia.com/gpugems3" target="_blank">developer.nvidia.com/gpugems3</a></li>
         <li>Bridson, R. — <em>Fluid Simulation for Computer Graphics</em>. A K Peters/CRC Press.</li>
@@ -127,8 +201,8 @@
         <li>Lague, S. — "Coding Adventure: Simulating Fluids," YouTube. <a href="https://youtube.com/watch?v=kOkfC5fLfgE" target="_blank">youtube.com/watch?v=kOkfC5fLfgE</a></li>
     </ul>
 
-  <h2>Contributions</h2>
-  <ul>
+    <h2>Contributions</h2>
+    <ul>
         <li><strong>Gracelynn Quek:</strong> Repository Initialisation on CPU-side (Simulation Infrastructure, Particle System, Rendering Pipeline, CMAKE, Basic Shaders) & Final Shaders</li>
         <li><strong>Ruiyun Wang:</strong> CPU-side simulation infrastructure, rendering pipeline, and environment rendering. Implemented the MAC grid data structure with staggered velocity layout, particle system initialisation, and the CPU particle-to-grid (P2G) velocity transfer with trilinear interpolation weights as a reference implementation. Implemented the environment dome with equirectangular texture mapping, HDR tone mapping support, and a dedicated GLSL shader pipeline. Set up the cross-platform CMake build system with a <code>CPU_ONLY</code> configuration enabling development on machines without NVIDIA GPUs.</li>
         <li><strong>Julian Vale:</strong> <span class="placeholder">[add contribution]</span></li>
