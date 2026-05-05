@@ -93,6 +93,28 @@
       For G2P, we snapshot the grid velocity field before the pressure solve begins. After the solve, each particle interpolates the velocity delta - post-solve minus pre-solve - from the staggered faces using trilinear weights, with coordinates clamped to the valid range to prevent extrapolation near walls. This delta is blended 95% FLIP / 5% PIC: FLIP adds the delta to the particle's existing velocity, preserving momentum and avoiding numerical dissipation, while the small PIC component damps instability by occasionally grounding the particle velocity to the absolute grid value.
   </p>
 
+  <h3>Rendering Pipeline and Shaders</h3>
+  <p>The rendering pipeline is built on OpenGL 3.3 core profile using GLFW for windowing and GLAD for function loading. Particle positions are uploaded to the GPU each frame as a vertex buffer and rendered as point sprites using <code>GL_POINTS</code>. The vertex shader performs a simple perspective projection by dividing the particle's XY position by its depth, with point size scaled inversely with depth so closer particles appear larger. Particles behind the camera are clipped by mapping them off-screen.</p>
+  <p>The fragment shader renders each point sprite as a soft circular disc rather than a square. It uses <code>gl_PointCoord</code> to compute the distance from the point centre, discarding fragments outside the unit circle and applying an exponential falloff for a soft edge. Depth-based fog is applied using exponential attenuation — particles further from the camera blend towards a configurable fog colour — giving the simulation atmospheric depth. Both particle colour and fog density are exposed as uniforms controllable from the application.</p>
+
+  <h3>Environment Dome</h3>
+  <p>To provide environmental context for the simulation, we implemented an environment dome — a large sphere (radius 50 units) surrounding the camera and all particles, with an equirectangular texture mapped to its interior surface. The dome is built procedurally at initialisation by tessellating a UV sphere into a triangle mesh with equirectangular UV coordinates. It is rendered before particles each frame with depth writes disabled (<code>glDepthMask(GL_FALSE)</code>) so it always appears in the background regardless of particle depth.</p>
+  <p>The dome uses a dedicated GLSL shader with a view-projection matrix uniform for correct perspective. The fragment shader samples the equirectangular texture and applies a brightness uniform for exposure control. Texture loading is handled via <code>stb_image</code>, which supports both standard JPG/PNG images and HDR equirectangular maps — for HDR inputs, the fragment shader applies Reinhard tone mapping and gamma correction (γ = 2.2) to correctly display high dynamic range values on a standard monitor.</p>
+
+  <h2>Problems Encountered</h2>
+    <ul>
+        <li><strong>Race conditions in parallel P2G:</strong> When parallelising the particle-to-grid transfer on the GPU, multiple threads writing to the same grid node introduced race conditions. These were resolved using CUDA atomic operations, though this comes at a performance cost we plan to address with a sorting-based approach in future work.</li>
+        <li><strong>Cross-platform build without CUDA:</strong> Team members without NVIDIA GPUs could not build the project once Thrust and CUDA were introduced. We resolved this by introducing a <code>CPU_ONLY</code> CMake flag and <code>#ifdef USE_CUDA</code> guards throughout the codebase, allowing a fully functional CPU build that includes the rendering pipeline and CPU reference simulation.</li>
+    </ul>
+
+    <h2>Lessons Learned</h2>
+    <ul>
+        <li>Staggered MAC grids avoid pressure checkerboard instability but require careful index arithmetic for staggered face arrays — off-by-one errors in face indexing are silent and hard to debug.</li>
+        <li>The 95/5 FLIP/PIC blend is a well-established heuristic that balances energy preservation against noise accumulation — pure FLIP accumulates visible noise over long runs.</li>
+        <li>Separating CPU reference implementations from GPU kernels early made debugging significantly easier, as correctness could be verified on the CPU before parallelising.</li>
+        <li>Atomic operations solve race conditions in parallel scatter operations but serialize memory access — for production fluid simulations, particle sorting by grid cell is a better long-term approach.</li>
+    </ul>
+
   <h2>Results</h2>
   <p>
     <a href="https://docs.google.com/presentation/d/1IlbSfOLKAJ8QCjdjOPf4DsCMhAC7VDqA83Xfy1pUPVE/edit?usp=sharing">Milestone Presentation Slides</a> &mdash;
@@ -100,8 +122,21 @@
   </p>
 
   <h2>References</h2>
+  <ul>
+        <li>Harris, M. — "Fast Fluid Dynamics Simulation on the GPU," GPU Gems, Ch. 38. NVIDIA. <a href="https://developer.nvidia.com/gpugems" target="_blank">developer.nvidia.com/gpugems</a></li>
+        <li>Crane, K. et al. — "Real-Time Simulation and Rendering of 3D Fluids," GPU Gems 3, Ch. 30. NVIDIA. <a href="https://developer.nvidia.com/gpugems3" target="_blank">developer.nvidia.com/gpugems3</a></li>
+        <li>Bridson, R. — <em>Fluid Simulation for Computer Graphics</em>. A K Peters/CRC Press.</li>
+        <li>Thürey, N. & Müller-Fischer, M. — "Grid-based and Particle-based Fluid Simulation," Uni Freiburg. <a href="https://cg.informatik.uni-freiburg.de" target="_blank">cg.informatik.uni-freiburg.de</a></li>
+        <li>Lague, S. — "Coding Adventure: Simulating Fluids," YouTube. <a href="https://youtube.com/watch?v=kOkfC5fLfgE" target="_blank">youtube.com/watch?v=kOkfC5fLfgE</a></li>
+    </ul>
 
   <h2>Contributions</h2>
+  <ul>
+        <li><strong>Gracelynn Quek:</strong> <span class="placeholder">[add contribution]</span></li>
+        <li><strong>Ruiyun Wang:</strong> CPU-side simulation infrastructure, rendering pipeline, and environment rendering. Implemented the MAC grid data structure with staggered velocity layout, particle system initialisation, and the CPU particle-to-grid (P2G) velocity transfer with trilinear interpolation weights as a reference implementation. Implemented the environment dome with equirectangular texture mapping, HDR tone mapping support, and a dedicated GLSL shader pipeline. Set up the cross-platform CMake build system with a <code>CPU_ONLY</code> configuration enabling development on machines without NVIDIA GPUs.</li>
+        <li><strong>Julian Vale:</strong> <span class="placeholder">[add contribution]</span></li>
+        <li><strong>Aditya Bhargava:</strong> <span class="placeholder">[add contribution]</span></li>
+    </ul>
 
 </body>
 </html>
