@@ -288,8 +288,8 @@
     <ul>
         <li><strong>Gracelynn Quek:</strong> Repository Initialisation on CPU-side (Simulation Infrastructure, Particle System, Rendering Pipeline, CMAKE, Basic Shaders) & Final Shaders</li>
         <li><strong>Ruiyun Wang:</strong> Implemented the MAC grid data structure, particle system initialisation, and the CPU particle-to-grid (P2G) velocity transfer as a reference implementation. Implemented the environment dome and a dedicated GLSL shader pipeline. Set up the cross-platform CMake build system with a <code>CPU_ONLY</code> configuration enabling development on machines without NVIDIA GPUs.</li>
-        <li><strong>Julian Vale:</strong> Migrated CPU particle to grid transfer to CUDA kernel. Implemented density texture compute shader, raymarched fluid shader. Added benchmarking and logging capabilities, optimized GPU memory transfer</li>
-        <li><strong>Aditya Bhargava:</strong></li>
+        <li><strong>Julian Vale:</strong> Migrated CPU particle to grid transfer to CUDA kernel. Implemented density texture compute shader, raymarched fluid shader with refractions and surface reflections and controllable density. Implemented glass shader for collider. Added benchmarking and performance logging capabilities, with command line arguments. Optimized GPU memory transfer. Investigated interactive collisions. </li>
+        <li><strong>Aditya Bhargava:</strong> Implemented the pressure solver used to enforce incompressibility in the fluid simulation, including the divergence computation, Jacobi pressure iterations, and pressure-gradient velocity correction. Added boundary condition handling to keep fluid contained within the simulation domain and ensure stable interaction with walls and obstacles. Also implemented quality-of-life improvements for testing and demonstration, including configurable preset modes for different simulation scenarios such as tank filling, falling liquid blobs, and tap-driven reservoir setups.</li>
     </ul>
 
 </body>
