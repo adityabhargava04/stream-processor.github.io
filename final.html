@@ -106,9 +106,8 @@
 
     <h2>Lessons Learned</h2>
     <ul>
-        <li>Staggered MAC grids avoid pressure checkerboard instability but require careful index arithmetic for staggered face arrays — off-by-one errors in face indexing are silent and hard to debug.</li>
         <li>The 95/5 FLIP/PIC blend is a well-established heuristic that balances energy preservation against noise accumulation — pure FLIP accumulates visible noise over long runs.</li>
-        <li>Separating CPU reference implementations from GPU kernels early made debugging significantly easier, as correctness could be verified on the CPU before parallelising.</li>
+        <li>Separating CPU reference implementations from GPU kernels early made debugging significantly easier, as correctness could be verified on the CPU before parallelising, and teammates without GPU access can assist.</li>
         <li>Atomic operations solve race conditions in parallel scatter operations but serialize memory access — for production fluid simulations, particle sorting by grid cell is a better long-term approach.</li>
     </ul>
 
