@@ -100,20 +100,20 @@
     <p class="subtitle">GPU-Accelerated Fluid Simulation &mdash; CS 184 Milestone Report</p>
     <p class="team"><strong>Team:</strong> Gracelynn Quek, Ruiyun Wang, Julian Vale, Aditya Bhargava</p>
 
-  <figure class="hero-image">
-    <img src="Fluid Sim.png" alt="Fluid simulation preview" />
-    <figcaption>Fluid Sim.png</figcaption>
-  </figure>
+    <figure class="hero-image">
+        <img src="Fluid Sim.png" alt="Fluid simulation preview" />
+        <figcaption>Fluid Sim.png</figcaption>
+    </figure>
 
-  <h2>Abstract</h2>
-  <p>
-    Our project successfully implemented 3D-fluid simulation for Newtonian fluids using a hybrid particle-grid method.
-    We managed to successfully implement CUDA acceleration to take advantage of the GPU's faster parallel processing capabilities. 
-    As seen in our video below, we managed to successfully simulate fluids in real-time under a gravitational field with interactions with scene boundaries and other objects.
-    In terms of performance, we managed to successfully simulate and render [number of] particles without any visible lag. 
-    In terms of future works, we could explore other atmospheric effects, such as fog and smoke, and potentially integration into a more dynamic 3D world.
-  </p>
-  
+    <h2>Abstract</h2>
+    <p>
+        Our project successfully implemented 3D-fluid simulation for Newtonian fluids using a hybrid particle-grid method.
+        We managed to successfully implement CUDA acceleration to take advantage of the GPU's faster parallel processing capabilities.
+        As seen in our video below, we managed to successfully simulate fluids in real-time under a gravitational field with interactions with scene boundaries and other objects.
+        In terms of performance, we managed to successfully simulate and render [number of] particles without any visible lag.
+        In terms of future works, we could explore other atmospheric effects, such as fog and smoke, and potentially integration into a more dynamic 3D world.
+    </p>
+
 
     <h2>Technical Approach</h2>
 
@@ -219,55 +219,64 @@
         <li>Atomic operations solve race conditions in parallel scatter operations but serialize memory access — for production fluid simulations, particle sorting by grid cell is a better long-term approach.</li>
     </ul>
 
-  <h2>Results</h2>
-  <p>
-    <a href="https://docs.google.com/presentation/d/1IlbSfOLKAJ8QCjdjOPf4DsCMhAC7VDqA83Xfy1pUPVE/edit?usp=sharing">Milestone Presentation Slides</a>
-  </p>
+    <h2>Results</h2>
+    <p>
+        <a href="https://docs.google.com/presentation/d/1IlbSfOLKAJ8QCjdjOPf4DsCMhAC7VDqA83Xfy1pUPVE/edit?usp=sharing">Milestone Presentation Slides</a>
+    </p>
 
-  <div class="video-grid">
-    <figure>
-      <iframe
-        src="https://www.youtube.com/embed/SpwOUDZZ-Ss"
-        title="Preset 1: Fluid filling up a tank"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen>
-      </iframe>
-      <figcaption>Preset 1: Fluid filling up a tank</figcaption>
+    <div class="video-grid">
+        <figure>
+            <iframe src="https://www.youtube.com/embed/SpwOUDZZ-Ss"
+                    title="Preset 1: Fluid filling up a tank"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen>
+            </iframe>
+            <figcaption>Preset 1: Fluid filling up a tank</figcaption>
+        </figure>
+
+        <figure>
+            <iframe src="https://www.youtube.com/embed/kBTZCtftDAI"
+                    title="Preset 2: Blob of liquid falling on floor"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen>
+            </iframe>
+            <figcaption>Preset 2: Blob of liquid falling on floor</figcaption>
+        </figure>
+
+        <figure>
+            <iframe src="https://www.youtube.com/embed/CGsH_VnNkxA"
+                    title="Preset 3: Tap pouring water into reservoir"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen>
+            </iframe>
+            <figcaption>Preset 3: Tap pouring water into reservoir</figcaption>
+        </figure>
+
+        <figure>
+            <iframe src="https://www.youtube.com/embed/XsPSAoYFHEo"
+                    title="Preset 4: Tap pouring water over a sphere into a reservoir"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen>
+            </iframe>
+            <figcaption>Preset 4: Tap pouring water over a sphere into a reservoir</figcaption>
+        </figure>
+
+        
+    </div>
+
+    <figure class="featured-image">
+        <iframe src="https://www.youtube.com/embed/p-7UI5WXTro"
+                title="Final Video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen>
+        </iframe>
+        <figcaption>Final video showcasing all four presets.</figcaption>
     </figure>
 
-    <figure>
-      <iframe
-        src="https://www.youtube.com/embed/kBTZCtftDAI"
-        title="Preset 2: Blob of liquid falling on floor"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen>
-      </iframe>
-      <figcaption>Preset 2: Blob of liquid falling on floor</figcaption>
-    </figure>
 
-    <figure>
-      <iframe
-        src="https://www.youtube.com/embed/CGsH_VnNkxA"
-        title="Preset 3: Tap pouring water into reservoir"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen>
-      </iframe>
-      <figcaption>Preset 3: Tap pouring water into reservoir</figcaption>
-    </figure>
 
-    <figure>
-      <iframe
-        src="https://www.youtube.com/embed/XsPSAoYFHEo"
-        title="Preset 4: Tap pouring water over a sphere into a reservoir"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen>
-      </iframe>
-      <figcaption>Preset 4: Tap pouring water over a sphere into a reservoir</figcaption>
-    </figure>
-  </div>
-
-  <h2>References</h2>
-  <ul>
+    <h2>References</h2>
+    <ul>
         <li>Harris, M. — "Fast Fluid Dynamics Simulation on the GPU," GPU Gems, Ch. 38. NVIDIA. <a href="https://developer.nvidia.com/gpugems" target="_blank">developer.nvidia.com/gpugems</a></li>
         <li>Crane, K. et al. — "Real-Time Simulation and Rendering of 3D Fluids," GPU Gems 3, Ch. 30. NVIDIA. <a href="https://developer.nvidia.com/gpugems3" target="_blank">developer.nvidia.com/gpugems3</a></li>
         <li>Bridson, R. — <em>Fluid Simulation for Computer Graphics</em>. A K Peters/CRC Press.</li>
@@ -280,7 +289,7 @@
         <li><strong>Gracelynn Quek:</strong> Repository Initialisation on CPU-side (Simulation Infrastructure, Particle System, Rendering Pipeline, CMAKE, Basic Shaders) & Final Shaders</li>
         <li><strong>Ruiyun Wang:</strong> Implemented the MAC grid data structure, particle system initialisation, and the CPU particle-to-grid (P2G) velocity transfer as a reference implementation. Implemented the environment dome and a dedicated GLSL shader pipeline. Set up the cross-platform CMake build system with a <code>CPU_ONLY</code> configuration enabling development on machines without NVIDIA GPUs.</li>
         <li><strong>Julian Vale:</strong> Migrated CPU particle to grid transfer to CUDA kernel. Implemented density texture compute shader, raymarched fluid shader. Added benchmarking and logging capabilities, optimized GPU memory transfer</li>
-        <li><strong>Aditya Bhargava:</strong> <span class="placeholder">[add contribution]</span></li>
+        <li><strong>Aditya Bhargava:</strong></li>
     </ul>
 
 </body>
