@@ -7,6 +7,7 @@
 !final.html
 
 !*.mp4
+!*.png
 !.DS_store
 
 !.gitignore
