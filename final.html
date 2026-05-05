@@ -96,7 +96,7 @@
 
   <h3>Environment Dome</h3>
   <p>To provide environmental context for the simulation, we implemented an environment dome — a large sphere (radius 50 units) surrounding the camera and all particles, with an equirectangular texture mapped to its interior surface. The dome is built procedurally at initialisation by tessellating a UV sphere into a triangle mesh with equirectangular UV coordinates. It is rendered before particles each frame with depth writes disabled (<code>glDepthMask(GL_FALSE)</code>) so it always appears in the background regardless of particle depth.</p>
-  <p>The dome uses a dedicated GLSL shader with a view-projection matrix uniform for correct perspective. The fragment shader samples the equirectangular texture and applies a brightness uniform for exposure control. Texture loading is handled via <code>stb_image</code>, which supports both standard JPG/PNG images and HDR equirectangular maps — for HDR inputs, the fragment shader applies Reinhard tone mapping and gamma correction (γ = 2.2) to correctly display high dynamic range values on a standard monitor.</p>
+  <p>The dome uses a dedicated GLSL shader with a view-projection matrix uniform for correct perspective. The fragment shader samples the equirectangular texture and applies a brightness uniform for exposure control. Texture loading is handled via <code>stb_image</code>, which supports standard JPG/PNG images.</p>
 
   <h2>Problems Encountered</h2>
     <ul>
