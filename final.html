@@ -36,15 +36,14 @@
 
   <h2>Abstract</h2>
   <p>
-    Our project successfully implemented 3D-fluid simulation for Newtonian fluids using a hybrid particle-grid method.
-    We managed to successfully implement CUDA acceleration to take advantage of the GPU's faster parallel processing capabilities. 
-  </p>
-  <p>
-    As seen in our video below, we managed to successfully simulate water under a gravitational field and interacting with other physical objects. 
-    In terms of performance, we managed to successfully simulate and render [number of] particles without any visible lag. 
-  </p>
-  <p>
-    In terms of future works, we could explore other atmospheric effects, such as fog and smoke, and potentially integration into a more dynamic 3D world.
+    Stream Processor is a GPU-accelerated 3D fluid simulation system built in C++ and CUDA, 
+    implementing a hybrid PIC/FLIP particle-grid method for simulating Newtonian fluids such as water. 
+    The system leverages CUDA parallelism to handle large particle counts efficiently, 
+    with a full pressure projection pipeline enforcing incompressibility each frame. 
+    On the rendering side, we built a custom OpenGL pipeline featuring perspective-correct point sprite particles, 
+    depth-based fog blending, and an environment dome with equirectangular texture mapping to provide environmental context for the simulation. 
+    The result is a real-time fluid simulation capable of rendering thousands of particles under gravity, 
+    interacting with scene boundaries, with visually convincing atmospheric depth and environment lighting.
   </p>
   
 
@@ -52,8 +51,8 @@
 
   <h3>Infrastructure</h3>
   <p>
-    The repository, build system, and CUDA environment are configured. 
-    We set up an OpenGL rendering pipeline using GLAD and GLFW directly, without additional abstraction libraries.
+    The repository and build system are configured using CMake with vcpkg for dependency management. 
+    We set up an OpenGL rendering pipeline directly using GLAD and GLFW without additional abstraction libraries. 
   </p>
 
   <h3>Particle System</h3>
